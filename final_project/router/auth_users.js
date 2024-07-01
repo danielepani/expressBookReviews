@@ -36,8 +36,6 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   const {isbn} = req.params;
   const {review} = req.body;
 
-  console.log(req.authPayload)
-
   const book = books[isbn];
 
   book.reviews = {
@@ -46,6 +44,18 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   }
   return res.json(book);
 });
+
+//Delete review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const {isbn} = req.params;
+  
+    const book = books[isbn];
+  
+    if (book.reviews[req.authPayload.user])
+    delete book.reviews[req.authPayload.user];
+
+    return res.json(book);
+  });
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;

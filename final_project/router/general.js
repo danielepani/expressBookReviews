@@ -3,6 +3,7 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const axios = require('axios');
 
 
 public_users.post("/register", (req,res) => {
@@ -69,6 +70,33 @@ public_users.get('/review/:isbn',function (req, res) {
   const book = books[isbn]; // assuming isbn is the key
 
   return res.json(book.reviews);
+});
+
+public_users.get('/books', async function(req, res) {
+    const booksResponse = await axios.get('http://localhost:5000');
+
+    return res.json(booksResponse.data);
+});
+
+public_users.get('/books/isbn/:isbn', async function(req, res) {
+    const {isbn} = req.params;
+    const booksResponse = await axios.get(`http://localhost:5000/isbn/${isbn}`);
+
+    return res.json(booksResponse.data);
+});
+
+public_users.get('/books/author/:author', async function(req, res) {
+    const {author} = req.params;
+    const booksResponse = await axios.get(`http://localhost:5000/author/${author}`);
+
+    return res.json(booksResponse.data);
+});
+
+public_users.get('/books/title/:title', async function(req, res) {
+    const {title} = req.params;
+    const booksResponse = await axios.get(`http://localhost:5000/title/${title}`);
+
+    return res.json(booksResponse.data);
 });
 
 module.exports.general = public_users;
