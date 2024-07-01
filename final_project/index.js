@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const session = require('express-session')
+const session = require('express-session');
+const { users } = require('./router/auth_users.js');
 const customer_routes = require('./router/auth_users.js').authenticated;
 const genl_routes = require('./router/general.js').general;
 
@@ -11,18 +12,30 @@ app.use(express.json());
 app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUninitialized: true}))
 
 app.use("/customer/auth/*", function auth(req,res,next){
-    const {user, password} = req.query;
+    /*const {user, password} = req.query;
 
     if (user !== 'Daniele' || password !== '123456') {
         return next({
             message: 'Invalid',
         })
-    }
-    const token = jwt.sign({user: 'Daniele'}, 'pkey1234');
+    }*/
+    const {authorization} = req.headers;
+    console.log('auth', authorization)
+    const token = authorization.split(' ')[1];
 
-    return res.json({
-        token
+    const decoded = jwt.verify(token, 'pkey1234');
+
+    const user = users.find(usr => usr.username === decoded.user);
+    if (user) {
+        req.authPayload = decoded;
+        next();
+    }
+
+    else return res.status(401).json({
+        message: 'User does not exist'
     })
+
+    //const token = jwt.sign({user: 'Daniele'}, 'pkey1234');
 });
  
 const PORT =5000;

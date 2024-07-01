@@ -15,7 +15,6 @@ const authenticatedUser = (username,password)=>{ //returns boolean
 
 //only registered users can login
 regd_users.post("/login", (req,res) => {
-  //Write your code here
   const {username, password} = req.body;
 
   if (!username || !password) return res.status(401).json({message: "Username AND password are required"});
@@ -24,7 +23,7 @@ regd_users.post("/login", (req,res) => {
 
   if (!user || user.password !== password) return res.status(401).json({message: "Invalid credentials"});
 
-  const token = jwt.sign({user: 'Daniele'}, 'pkey1234');
+  const token = jwt.sign({user: user.username}, 'pkey1234');
 
   return res.json({
       token
@@ -34,8 +33,18 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const {isbn} = req.params;
+  const {review} = req.body;
+
+  console.log(req.authPayload)
+
+  const book = books[isbn];
+
+  book.reviews = {
+    ...book.reviews,
+    [req.authPayload.user]: review
+  }
+  return res.json(book);
 });
 
 module.exports.authenticated = regd_users;
